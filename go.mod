@@ -375,8 +375,7 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go-v2/service/medialive v1.24.2
-	github.com/opalsecurity/opal-go v1.0.9
+	github.com/samir-gandhi/davinci-client-go v0.0.26
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/as v1.0.392
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cbs v1.0.392
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdb v1.0.392
