@@ -375,6 +375,7 @@ require (
 )
 
 require (
+	github.com/samir-gandhi/davinci-client-go v0.0.26
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/as v1.0.392
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cbs v1.0.392
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdb v1.0.392
