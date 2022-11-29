@@ -39,6 +39,7 @@ func Execute() error {
 func providerImporterSubcommands() []func(options ImportOptions) *cobra.Command {
 	return []func(options ImportOptions) *cobra.Command{
 		// Major Cloud
+<<<<<<< HEAD
 		// 		newCmdGoogleImporter,
 		// 		newCmdAwsImporter,
 		// 		newCmdAzureImporter,
@@ -87,6 +88,56 @@ func providerImporterSubcommands() []func(options ImportOptions) *cobra.Command 
 		// 		newCmdVaultImporter,
 		// 		newCmdOktaImporter,
 		// 		newCmdAuth0Importer,
+=======
+// 		newCmdGoogleImporter,
+// 		newCmdAwsImporter,
+// 		newCmdAzureImporter,
+// 		newCmdAliCloudImporter,
+// 		newCmdIbmImporter,
+		// Cloud
+// 		newCmdDigitalOceanImporter,
+// 		newCmdEquinixMetalImporter,
+// 		newCmdHerokuImporter,
+// 		newCmdLaunchDarklyImporter,
+// 		newCmdLinodeImporter,
+// 		newCmdOpenStackImporter,
+// 		newCmdTencentCloudImporter,
+// 		newCmdVultrImporter,
+// 		newCmdYandexImporter,
+		// Infrastructure Software
+// 		newCmdKubernetesImporter,
+// 		newCmdOctopusDeployImporter,
+// 		newCmdRabbitMQImporter,
+		// Network
+// 		newCmdMyrasecImporter,
+// 		newCmdCloudflareImporter,
+// 		newCmdFastlyImporter,
+// 		newCmdNs1Importer,
+// 		newCmdPanosImporter,
+		// VCS
+// 		newCmdAzureDevOpsImporter,
+// 		newCmdAzureADImporter,
+// 		newCmdGithubImporter,
+// 		newCmdGitLabImporter,
+		// Monitoring & System Management
+// 		newCmdDatadogImporter,
+// 		newCmdNewRelicImporter,
+// 		newCmdMackerelImporter,
+// 		newCmdGrafanaImporter,
+// 		newCmdPagerDutyImporter,
+// 		newCmdOpsgenieImporter,
+// 		newCmdHoneycombioImporter,
+		// Community
+// 		newCmdKeycloakImporter,
+// 		newCmdLogzioImporter,
+// 		newCmdCommercetoolsImporter,
+// 		newCmdMikrotikImporter,
+// 		newCmdXenorchestraImporter,
+// 		newCmdGmailfilterImporter,
+// 		newCmdVaultImporter,
+// 		newCmdOktaImporter,
+// 		newCmdAuth0Importer,
+>>>>>>> e3ab3c2a26b8e9311e2c2c7f5a5a18d5f83d7944
 		newCmdPingOneDavinciImporter,
 	}
 }
@@ -95,6 +146,7 @@ func providerGenerators() map[string]func() terraformutils.ProviderGenerator {
 	list := make(map[string]func() terraformutils.ProviderGenerator)
 	for _, providerGen := range []func() terraformutils.ProviderGenerator{
 		// Major Cloud
+<<<<<<< HEAD
 		// 		newGoogleProvider,
 		// 		newAWSProvider,
 		// 		newAzureProvider,
@@ -139,6 +191,51 @@ func providerGenerators() map[string]func() terraformutils.ProviderGenerator {
 		// 		newVaultProvider,
 		// 		newOktaProvider,
 		// 		newAuth0Provider,
+=======
+// 		newGoogleProvider,
+// 		newAWSProvider,
+// 		newAzureProvider,
+// 		newAliCloudProvider,
+// 		newIbmProvider,
+		// Cloud
+// 		newDigitalOceanProvider,
+// 		newEquinixMetalProvider,
+// 		newFastlyProvider,
+// 		newHerokuProvider,
+// 		newLaunchDarklyProvider,
+// 		newLinodeProvider,
+// 		newNs1Provider,
+// 		newOpenStackProvider,
+// 		newTencentCloudProvider,
+// 		newVultrProvider,
+		// Infrastructure Software
+// 		newKubernetesProvider,
+// 		newOctopusDeployProvider,
+// 		newRabbitMQProvider,
+		// Network
+// 		newMyrasecProvider,
+// 		newCloudflareProvider,
+		// VCS
+// 		newAzureDevOpsProvider,
+// 		newAzureADProvider,
+// 		newGitHubProvider,
+// 		newGitLabProvider,
+		// Monitoring & System Management
+// 		newDataDogProvider,
+// 		newNewRelicProvider,
+// 		newPagerDutyProvider,
+// 		newHoneycombioProvider,
+		// Community
+// 		newKeycloakProvider,
+// 		newLogzioProvider,
+// 		newCommercetoolsProvider,
+// 		newMikrotikProvider,
+// 		newXenorchestraProvider,
+// 		newGmailfilterProvider,
+// 		newVaultProvider,
+// 		newOktaProvider,
+// 		newAuth0Provider,
+>>>>>>> e3ab3c2a26b8e9311e2c2c7f5a5a18d5f83d7944
 		newPingOneDavinciProvider,
 	} {
 		list[providerGen().GetName()] = providerGen

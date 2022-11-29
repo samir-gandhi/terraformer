@@ -71,6 +71,13 @@ func (p *PingOneDavinciProvider) GetName() string {
 	return "davinci"
 }
 
+<<<<<<< HEAD
+=======
+func (p *PingOneDavinciProvider) GetSource() string {
+	return "pingidentity/davinci"
+}
+
+>>>>>>> e3ab3c2a26b8e9311e2c2c7f5a5a18d5f83d7944
 func (p *PingOneDavinciProvider) GetConfig() cty.Value {
 
 	return cty.ObjectVal(map[string]cty.Value{
