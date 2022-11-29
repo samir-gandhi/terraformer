@@ -15,6 +15,8 @@
 package pingonedavinci
 
 import (
+	"strconv"
+
 	"github.com/GoogleCloudPlatform/terraformer/terraformutils"
 	"github.com/samir-gandhi/davinci-client-go/davinci"
 )
@@ -29,11 +31,25 @@ type ApplicationGenerator struct {
 
 func (g ApplicationGenerator) createResources(applications []davinci.App) []terraformutils.Resource {
 	resources := []terraformutils.Resource{}
+	names := map[string]struct{}{}
 	for _, application := range applications {
-		resourceName := application.AppID
+		resourceId := application.AppID
+		resourceName := application.Name
+		if _, ok := names[application.Name]; !ok {
+			names[application.Name] = struct{}{}
+		} else {
+			for i := 2; i > 0; i++ {
+				thisName := application.Name + "_" + strconv.Itoa(i)
+				if _, ok := names[thisName]; !ok {
+					names[thisName] = struct{}{}
+					resourceName = thisName
+					break
+				}
+			}
+		}
 		resources = append(resources, terraformutils.NewResource(
+			resourceId,
 			resourceName,
-			resourceName+"_"+application.Name,
 			"davinci_application",
 			"davinci",
 			map[string]string{
