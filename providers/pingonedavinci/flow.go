@@ -48,17 +48,15 @@ func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Re
 
 func (g *FlowGenerator) InitResources() error {
 	m := g.generateClient()
-	list := []davinci.Flow{}
 
 	params := davinci.Params{
 		Page:  "",
 		Limit: "",
 	}
-	l, err := m.ReadFlows(&m.CompanyID, &params)
+	list, err := m.ReadFlows(&m.CompanyID, &params)
 	if err != nil {
 		return err
 	}
-	list = append(list, l...)
 
 	g.Resources = g.createResources(list)
 	return nil
