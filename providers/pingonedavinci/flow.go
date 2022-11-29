@@ -17,6 +17,7 @@ package pingonedavinci
 import (
 	"github.com/GoogleCloudPlatform/terraformer/terraformutils"
 	"github.com/samir-gandhi/davinci-client-go/davinci"
+	"strconv"
 )
 
 var (
@@ -29,11 +30,25 @@ type FlowGenerator struct {
 
 func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Resource {
 	resources := []terraformutils.Resource{}
+	names := map[string]struct{}{}
 	for _, flow := range flows {
-		resourceName := flow.FlowID
+		resourceId := flow.FlowID
+		resourceName := flow.Name
+		if _, ok := names[flow.Name]; !ok {
+			names[flow.Name] = struct{}{}
+		} else {
+			for i := 2; i > 0; i++ {
+				thisName := flow.Name + "_" + strconv.Itoa(i)
+				if _, ok := names[thisName]; !ok {
+					names[thisName] = struct{}{}
+					resourceName = thisName
+					break
+				}
+			}
+		}
 		resources = append(resources, terraformutils.NewResource(
+			resourceId,
 			resourceName,
-			resourceName+"_"+flow.Name,
 			"davinci_flow",
 			"davinci",
 			map[string]string{

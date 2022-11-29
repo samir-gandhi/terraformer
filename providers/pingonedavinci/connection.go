@@ -15,6 +15,8 @@
 package pingonedavinci
 
 import (
+	"strconv"
+
 	"github.com/GoogleCloudPlatform/terraformer/terraformutils"
 	"github.com/samir-gandhi/davinci-client-go/davinci"
 )
@@ -29,11 +31,25 @@ type ConnectionGenerator struct {
 
 func (g ConnectionGenerator) createResources(connections []davinci.Connection) []terraformutils.Resource {
 	resources := []terraformutils.Resource{}
+	names := map[string]struct{}{}
 	for _, connection := range connections {
-		resourceName := connection.ConnectionID
+		resourceId := connection.ConnectionID
+		resourceName := connection.Name
+		if _, ok := names[connection.Name]; !ok {
+			names[connection.Name] = struct{}{}
+		} else {
+			for i := 2; i > 0; i++ {
+				thisName := connection.Name + "_" + strconv.Itoa(i)
+				if _, ok := names[thisName]; !ok {
+					names[thisName] = struct{}{}
+					resourceName = thisName
+					break
+				}
+			}
+		}
 		resources = append(resources, terraformutils.NewResource(
+			resourceId,
 			resourceName,
-			resourceName+"_"+connection.Name,
 			"davinci_connection",
 			"davinci",
 			map[string]string{
