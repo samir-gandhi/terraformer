@@ -31,11 +31,11 @@ func newCmdPingOneDavinciImporter(options ImportOptions) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			username := os.Getenv("PINGONE_USERNAME")
 			if len(username) == 0 {
-				return errors.New("PingOne username for Davinci must be set through `PINGONE_DAVINCI` env var")
+				return errors.New("PingOne username for Davinci must be set through `PINGONE_USERNAME` env var")
 			}
 			password := os.Getenv("PINGONE_PASSWORD")
 			if len(password) == 0 {
-				return errors.New("PingOne password for Davinci must be set through `PINGONE_USERNAME` env var")
+				return errors.New("PingOne password for Davinci must be set through `PINGONE_PASSWORD` env var")
 			}
 			region := os.Getenv("PINGONE_REGION")
 			if len(region) == 0 {
