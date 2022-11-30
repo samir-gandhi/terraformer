@@ -7,6 +7,8 @@ cmd/tmp
 .vscode
 terraform.tfstate
 terraform.tfstate.backup
+.terraform.lock.hcl
+versions.tf
 init.tf
 vendor/
 bin

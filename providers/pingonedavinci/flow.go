@@ -55,7 +55,7 @@ func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Re
 				"environment_id": flow.CompanyID,
 			},
 			FlowAllowEmptyValues,
-			map[string]interface{}{},
+			map[string]interface{}{"deploy": true},
 		))
 	}
 	return resources
