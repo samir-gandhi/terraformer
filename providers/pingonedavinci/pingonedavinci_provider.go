@@ -70,6 +70,9 @@ func (p *PingOneDavinciProvider) Init(args []string) error {
 func (p *PingOneDavinciProvider) GetName() string {
 	return "davinci"
 }
+func (p *PingOneDavinciProvider) GetSource() string {
+	return "pingidentity/davinci"
+}
 
 func (p *PingOneDavinciProvider) GetConfig() cty.Value {
 
