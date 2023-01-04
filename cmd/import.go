@@ -14,10 +14,12 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"sort"
 	"strings"
 	"sync"
@@ -282,6 +284,14 @@ func printService(provider terraformutils.ProviderGenerator, serviceName string,
 		}
 		if err := ioutil.WriteFile(path+"/terraform.tfstate", tfStateFile, os.ModePerm); err != nil {
 			return err
+		}
+		tf := exec.Command("terraform", "state", "replace-provider", "-auto-approve", "-state", fmt.Sprintf(path+"/terraform.tfstate"), "registry.terraform.io/-/davinci", "pingidentity/davinci")
+		var out bytes.Buffer
+		var stderr bytes.Buffer
+		tf.Stdout = &out
+		tf.Stderr = &stderr
+		if err := tf.Run(); err != nil {
+			log.Fatal("terraform state replace failed: ", err, fmt.Sprintf(": %s", stderr.String()))
 		}
 	}
 	// Print hcl variables.tf
