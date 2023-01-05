@@ -277,7 +277,8 @@ func escapeRune(s string) string {
 // Sanitize name for terraform style
 func TfSanitize(name string) string {
 	name = unsafeChars.ReplaceAllStringFunc(name, escapeRune)
-	name = "tfer--" + name
+	// commented to remove the tfer-- prefix
+	// name = "tfer--" + name
 	return name
 }
 
