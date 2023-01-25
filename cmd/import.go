@@ -285,7 +285,8 @@ func printService(provider terraformutils.ProviderGenerator, serviceName string,
 		if err := ioutil.WriteFile(path+"/terraform.tfstate", tfStateFile, os.ModePerm); err != nil {
 			return err
 		}
-		tf := exec.Command("terraform", "state", "replace-provider", "-auto-approve", "-state", fmt.Sprintf(path+"/terraform.tfstate"), "registry.terraform.io/-/davinci", "pingidentity/davinci")
+		log.Println("upgrade terraform state")
+		tf := exec.Command("terraform", "state", "replace-provider", "-auto-approve", "-state", fmt.Sprintf(path+"/terraform.tfstate"), "registry.terraform.io/-/davinci", "pingidentity.com/pingidentity/davinci")
 		var out bytes.Buffer
 		var stderr bytes.Buffer
 		tf.Stdout = &out

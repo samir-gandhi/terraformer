@@ -56,7 +56,7 @@ func newCmdPingOneDavinciImporter(options ImportOptions) *cobra.Command {
 		},
 	}
 	cmd.AddCommand(listCmd(newPingOneDavinciProvider()))
-	baseProviderFlags(cmd.PersistentFlags(), &options, "targetenvid", "targetenvid=123-456")
+	baseProviderFlags(cmd.PersistentFlags(), &options, "", "")
 	cmd.Flags().StringVarP(&options.Profile, "target-environment-id", "t", "", "dv0-abc-1234-xyz-5678")
 	return cmd
 }
