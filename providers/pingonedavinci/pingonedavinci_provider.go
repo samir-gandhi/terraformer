@@ -31,6 +31,19 @@ type PingOneDavinciProvider struct { //nolint
 	targetEnvironmentId string
 }
 
+func (p PingOneDavinciProvider) GetResourceConnections() map[string]map[string][]string {
+	return map[string]map[string][]string{
+		"davinci_application": {
+			"davinci_flow": []string{"policies.policy_flows.flow_id", "id"},
+		},
+		"davinci_flow": {
+			"davinci_connection": []string{"connections.connection_id", "id"},
+			// "davinci_connection": []string{"connections.connection_id", "id"},
+			"davinci_flow": []string{"subflows.subflow_id", "id"},
+		},
+	}
+}
+
 func (p *PingOneDavinciProvider) Init(args []string) error {
 	uName := os.Getenv("PINGONE_USERNAME")
 	if uName == "" {
@@ -71,7 +84,7 @@ func (p *PingOneDavinciProvider) GetName() string {
 	return "davinci"
 }
 func (p *PingOneDavinciProvider) GetSource() string {
-	return "pingidentity/davinci"
+	return "pingidentity.com/pingidentity/davinci"
 }
 
 func (p *PingOneDavinciProvider) GetConfig() cty.Value {
@@ -105,14 +118,10 @@ func (p *PingOneDavinciProvider) InitService(serviceName string, verbose bool) e
 
 func (p *PingOneDavinciProvider) GetSupportedService() map[string]terraformutils.ServiceGenerator {
 	return map[string]terraformutils.ServiceGenerator{
-		"davinci_connections":  &ConnectionGenerator{},
-		"davinci_flows":        &FlowGenerator{},
-		"davinci_applications": &ApplicationGenerator{},
+		"davinci_connection":  &ConnectionGenerator{},
+		"davinci_flow":        &FlowGenerator{},
+		"davinci_application": &ApplicationGenerator{},
 	}
-}
-
-func (p PingOneDavinciProvider) GetResourceConnections() map[string]map[string][]string {
-	return map[string]map[string][]string{}
 }
 
 func (p PingOneDavinciProvider) GetProviderData(arg ...string) map[string]interface{} {

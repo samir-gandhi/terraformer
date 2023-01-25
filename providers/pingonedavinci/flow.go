@@ -15,6 +15,7 @@
 package pingonedavinci
 
 import (
+	"fmt"
 	"github.com/GoogleCloudPlatform/terraformer/terraformutils"
 	"github.com/samir-gandhi/davinci-client-go/davinci"
 	"strconv"
@@ -46,6 +47,16 @@ func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Re
 				}
 			}
 		}
+
+		// prepare additional attributes for terraform resource
+		// addlAttrs := map[string]interface{}{}
+		// addlAttrs["deploy"] = true
+		// addlAttrs["connections"] = expandFlowConnections(flow)
+		// sf := expandFlowSubflows(flow)
+		// if sf != nil {
+		// 	addlAttrs["subflows"] = sf
+		// }
+
 		resources = append(resources, terraformutils.NewResource(
 			resourceId,
 			resourceName,
@@ -55,10 +66,84 @@ func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Re
 				"environment_id": flow.CompanyID,
 			},
 			FlowAllowEmptyValues,
-			map[string]interface{}{"deploy": true},
+			nil,
+			// addlAttrs,
 		))
 	}
 	return resources
+}
+
+// func expandFlowConnections(flow davinci.Flow) []map[string]string {
+// 	var connections []map[string]string
+// 	nodes := flow.GraphData.Elements.Nodes
+// 	for _, node := range nodes {
+// 		conn := map[string]string{
+// 			"connection_id":   node.Data.ConnectionID,
+// 			"connection_name": node.Data.ConnectorID,
+// 		}
+// 		if !containsObj(connections, conn) && conn["connection_id"] != "" {
+// 			connections = append(connections, conn)
+// 		}
+// 	}
+// 	return connections
+// }
+
+// stolen from dv terraform provider - should be exported.
+func expandFlowSubflows(flow davinci.Flow) []map[string]string {
+	var subflows []map[string]string
+	nodes := flow.GraphData.Elements.Nodes
+	for _, node := range nodes {
+		if node.Data.ConnectorID == "flowConnector" && (node.Data.CapabilityName == "startSubFlow" || node.Data.CapabilityName == "startUiSubFlow") {
+			sfProps, err := expandSubFlowProps(node.Data.Properties)
+			if err != nil {
+				panic(err)
+			}
+			subflow := map[string]string{
+				"subflow_id":   sfProps.SubFlowID.Value.Value,
+				"subflow_name": sfProps.SubFlowID.Value.Label,
+			}
+			if !containsObj(subflows, subflow) && subflow["subflow_id"] != "" {
+				subflows = append(subflows, subflow)
+			}
+		}
+	}
+	if len(subflows) > 0 {
+		return subflows
+	}
+	return nil
+}
+
+func expandSubFlowProps(subflowProps map[string]interface{}) (*davinci.SubFlowProperties, error) {
+
+	sfp := subflowProps["subFlowId"].(map[string]interface{})
+	sfpVal := sfp["value"].(map[string]interface{})
+	sfId := davinci.SubFlowID{
+		Value: davinci.SubFlowValue{
+			Value: sfpVal["value"].(string),
+			Label: sfpVal["label"].(string),
+		},
+	}
+	subflowVersionId := subflowProps["subFlowVersionId"].(map[string]interface{})
+	sfv := davinci.SubFlowVersionID{
+		Value: subflowVersionId["value"].(string),
+	}
+	if sfId.Value.Value == "" || sfv.Value == "" {
+		return nil, fmt.Errorf("Error: subflow value or versionId is empty")
+	}
+	subflow := davinci.SubFlowProperties{
+		SubFlowID:        sfId,
+		SubFlowVersionID: sfv,
+	}
+	return &subflow, nil
+}
+
+func containsObj(items []map[string]string, subitem map[string]string) bool {
+	for _, item := range items {
+		if item["connection_id"] == subitem["connection_id"] {
+			return true
+		}
+	}
+	return false
 }
 
 func (g *FlowGenerator) InitResources() error {

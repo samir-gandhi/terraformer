@@ -363,6 +363,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.5 // indirect
 	github.com/go-openapi/swag v0.19.14 // indirect
+	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/hashicorp/terraform-plugin-log v0.7.0 // indirect
@@ -375,7 +376,8 @@ require (
 )
 
 require (
-	github.com/samir-gandhi/davinci-client-go v0.0.26
+	github.com/opalsecurity/opal-go v1.0.9
+	github.com/samir-gandhi/davinci-client-go v0.0.37
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/as v1.0.392
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cbs v1.0.392
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdb v1.0.392
