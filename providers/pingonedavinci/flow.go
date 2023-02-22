@@ -15,10 +15,12 @@
 package pingonedavinci
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/GoogleCloudPlatform/terraformer/terraformutils"
 	"github.com/samir-gandhi/davinci-client-go/davinci"
-	"strconv"
 )
 
 var (
@@ -56,8 +58,12 @@ func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Re
 		// if sf != nil {
 		// 	addlAttrs["subflows"] = sf
 		// }
-
-		resources = append(resources, terraformutils.NewResource(
+		configJson, err := json.MarshalIndent(flow, "", "  ")
+		if err != nil {
+			panic(fmt.Errorf("unable to marshal davinci flow to json %s: %v", flow.Name, err))
+		}
+		filename := fmt.Sprintf("flow_%s.json", flow.Name)
+		resource := terraformutils.NewResource(
 			resourceId,
 			resourceName,
 			"davinci_flow",
@@ -66,9 +72,16 @@ func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Re
 				"environment_id": flow.CompanyID,
 			},
 			FlowAllowEmptyValues,
-			nil,
+			map[string]interface{}{
+				"flow_json": fmt.Sprintf("file(\"data/%s\")", filename),
+			},
 			// addlAttrs,
-		))
+		)
+		resource.DataFiles = map[string][]byte{
+			filename: configJson,
+		}
+
+		resources = append(resources, resource)
 	}
 	return resources
 }
