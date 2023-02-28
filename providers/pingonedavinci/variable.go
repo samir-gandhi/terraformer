@@ -15,7 +15,6 @@
 package pingonedavinci
 
 import (
-	"log"
 	"strconv"
 	"strings"
 
