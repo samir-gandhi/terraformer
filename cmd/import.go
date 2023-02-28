@@ -20,6 +20,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"reflect"
 	"sort"
 	"strings"
 	"sync"
@@ -57,6 +58,7 @@ type ImportOptions struct {
 	NoSort        bool
 	RetryCount    int
 	RetrySleepMs  int
+	Abstract      bool
 }
 
 const DefaultPathPattern = "{output}/{provider}/{service}/"
@@ -231,6 +233,12 @@ func ImportFromPlan(provider terraformutils.ProviderGenerator, plan *ImportPlan)
 		importedResource = terraformutils.ConnectServices(importedResource, isServicePath, provider.GetResourceConnections())
 	}
 
+	// if options.Abstract then variablize importedResource
+	if options.Abstract {
+		log.Println(provider.GetName() + " Scrubbing Outputs.... ")
+		importedResource = terraformutils.AbstractServices(importedResource, isServicePath, provider.GetResourceVariables())
+	}
+
 	if !isServicePath {
 		var compactedResources []terraformutils.Resource
 		for _, resources := range importedResource {
@@ -286,7 +294,7 @@ func printService(provider terraformutils.ProviderGenerator, serviceName string,
 			return err
 		}
 		log.Println("upgrade terraform state")
-		tf := exec.Command("terraform", "state", "replace-provider", "-auto-approve", "-state", fmt.Sprintf(path+"/terraform.tfstate"), "registry.terraform.io/-/davinci", "pingidentity.com/pingidentity/davinci")
+		tf := exec.Command("terraform", "state", "replace-provider", "-auto-approve", "-state", fmt.Sprintf(path+"/terraform.tfstate"), "registry.terraform.io/-/davinci", "pingidentity/davinci")
 		var out bytes.Buffer
 		var stderr bytes.Buffer
 		tf.Stdout = &out
@@ -367,6 +375,44 @@ func printService(provider terraformutils.ProviderGenerator, serviceName string,
 			}
 		}
 	}
+	err = printAbstractVariables(path, options, importedResource)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// update variables.tf and terraform.tfvars
+func printAbstractVariables(filePath string, options ImportOptions, importedResource map[string][]terraformutils.Resource) error {
+	if options.Abstract {
+		variables := map[string]map[string]map[string]interface{}{}
+		variables["variable"] = map[string]map[string]interface{}{}
+		var tfvars string
+		for _, resources := range importedResource {
+			for _, resource := range resources {
+				for key, value := range resource.Variables {
+					reflect.TypeOf(value)
+					tfvars += fmt.Sprintf("%s = %q\n", key, reflect.ValueOf(value))
+					variables["variable"][key] = map[string]interface{}{
+						// "type":        "bool",
+						"description": "Value for " + key + " variable",
+						// "default":     false,
+					}
+				}
+			}
+		}
+		// print files
+		fmt.Println("variables: ", variables["variable"])
+		if len(variables["variable"]) > 0 {
+			variablesFile, err := terraformutils.Print(variables, map[string]struct{}{}, options.Output, !options.NoSort)
+			if err != nil {
+				return err
+			}
+			terraformoutput.CheckAndPrintFile(filePath+"/variables."+terraformoutput.GetFileExtension(options.Output), variablesFile)
+			terraformoutput.PrintFile(filePath+"/terraform.tfvars", []byte(tfvars))
+		}
+
+	}
 	return nil
 }
 
@@ -419,4 +465,5 @@ func baseProviderFlags(flag *pflag.FlagSet, options *ImportOptions, sampleRes, s
 	flag.StringVarP(&options.Output, "output", "O", "hcl", "output format hcl or json")
 	flag.IntVarP(&options.RetryCount, "retry-number", "n", 5, "number of retries to perform when refresh fails")
 	flag.IntVarP(&options.RetrySleepMs, "retry-sleep-ms", "m", 300, "time in ms to sleep between retries")
+	flag.BoolVarP(&options.Abstract, "abstract", "a", false, "separate sensitive and environment-specific data")
 }

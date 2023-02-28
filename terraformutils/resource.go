@@ -38,6 +38,7 @@ type Resource struct {
 	AdditionalFields  map[string]interface{} `json:",omitempty"`
 	SlowQueryRequired bool
 	DataFiles         map[string][]byte
+	Variables         map[string]interface{} `json:",omitempty"`
 }
 
 type ApplicableFilter interface {

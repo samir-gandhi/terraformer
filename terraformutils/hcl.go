@@ -278,7 +278,7 @@ func escapeRune(s string) string {
 func TfSanitize(name string) string {
 	name = unsafeChars.ReplaceAllStringFunc(name, escapeRune)
 	// commented to remove the tfer-- prefix
-	// name = "tfer--" + name
+	name = "tfer--" + name
 	return name
 }
 
