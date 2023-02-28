@@ -29,18 +29,26 @@ type PingOneDavinciProvider struct { //nolint
 	region              string
 	environmentId       string
 	targetEnvironmentId string
+	abstract            string
 }
 
 func (p PingOneDavinciProvider) GetResourceConnections() map[string]map[string][]string {
 	return map[string]map[string][]string{
 		"davinci_application": {
-			"davinci_flow": []string{"policies.policy_flows.flow_id", "id"},
+			"davinci_flow": []string{"policy.policy_flow.flow_id", "id"},
 		},
 		"davinci_flow": {
-			"davinci_connection": []string{"connections.connection_id", "id"},
-			// "davinci_connection": []string{"connections.connection_id", "id"},
-			"davinci_flow": []string{"subflows.subflow_id", "id"},
+			"davinci_connection": []string{"connection_link.id", "id"},
+			"davinci_flow":       []string{"subflow_link.id", "id"},
 		},
+	}
+}
+
+func (p PingOneDavinciProvider) GetResourceVariables() map[string][]terraformutils.VariableSet {
+	return map[string][]terraformutils.VariableSet{
+		// "davinci_connection": {{Path: "property.value", Key: "self_link"}},
+		"davinci_connection": {{Path: "property.value", Key: "property.name"}},
+		"davinci_variable":   {{Path: "value", Key: "self_link"}},
 	}
 }
 
@@ -73,8 +81,14 @@ func (p *PingOneDavinciProvider) Init(args []string) error {
 		p.targetEnvironmentId = targetEnvId
 	}
 
+	// override os env vars with args if needed.
 	if len(args) > 4 && args[4] != "" {
 		p.targetEnvironmentId = args[4]
+	}
+
+	//set abstract
+	if len(args) > 5 {
+		p.abstract = args[5]
 	}
 
 	return nil
@@ -84,7 +98,7 @@ func (p *PingOneDavinciProvider) GetName() string {
 	return "davinci"
 }
 func (p *PingOneDavinciProvider) GetSource() string {
-	return "pingidentity.com/pingidentity/davinci"
+	return "pingidentity/davinci"
 }
 
 func (p *PingOneDavinciProvider) GetConfig() cty.Value {
@@ -112,6 +126,7 @@ func (p *PingOneDavinciProvider) InitService(serviceName string, verbose bool) e
 		"region":                p.region,
 		"environment_id":        p.environmentId,
 		"target_environment_id": p.targetEnvironmentId,
+		"abstract":              p.abstract,
 	})
 	return nil
 }
@@ -121,6 +136,7 @@ func (p *PingOneDavinciProvider) GetSupportedService() map[string]terraformutils
 		"davinci_connection":  &ConnectionGenerator{},
 		"davinci_flow":        &FlowGenerator{},
 		"davinci_application": &ApplicationGenerator{},
+		"davinci_variable":    &VariableGenerator{},
 	}
 }
 

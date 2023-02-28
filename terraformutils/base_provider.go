@@ -30,6 +30,7 @@ type ProviderGenerator interface {
 	GetProviderData(arg ...string) map[string]interface{}
 	GenerateOutputPath() error
 	GetResourceConnections() map[string]map[string][]string
+	GetResourceVariables() map[string][]VariableSet
 }
 
 type ProviderWithSource interface {

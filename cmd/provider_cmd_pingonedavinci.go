@@ -16,6 +16,7 @@ package cmd
 import (
 	"errors"
 	"os"
+	"strconv"
 
 	pingonedavinci_terraforming "github.com/GoogleCloudPlatform/terraformer/providers/pingonedavinci"
 
@@ -47,8 +48,10 @@ func newCmdPingOneDavinciImporter(options ImportOptions) *cobra.Command {
 			}
 			targetEnvironmentId := options.Profile
 
+			abstract := options.Abstract
+
 			provider := newPingOneDavinciProvider()
-			err := Import(provider, options, []string{username, password, region, environmentId, targetEnvironmentId})
+			err := Import(provider, options, []string{username, password, region, environmentId, targetEnvironmentId, strconv.FormatBool(abstract)})
 			if err != nil {
 				return err
 			}

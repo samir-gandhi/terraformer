@@ -15,9 +15,12 @@
 package main
 
 import (
+	"path/filepath"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/GoogleCloudPlatform/terraformer/cmd"
@@ -40,4 +43,37 @@ func main() {
 		log.Println(err)
 		os.Exit(1)
 	}
+	if err := filepath.Walk("generated", walkFunc); err != nil {
+		panic(err)
+	}
+}
+
+// DO NOT COMMIT THIS FUNCTION
+func walkFunc(path string, fi os.FileInfo, err error) error {
+	if err != nil {
+		return err
+	}
+
+	if !!fi.IsDir() {
+		return nil //
+	}
+	matched, err := filepath.Match("*.tf", fi.Name())
+	if err != nil {
+		return err
+	}
+
+	if matched {
+		b, err := ioutil.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		r := regexp.MustCompile(`"\${file\(\\\"data\/.*json\\\"\)}"`)
+		items := r.FindAllStringSubmatch(string(b), -1)
+		for _, item := range items {
+			replace := strings.Replace(item[0], "\\", "", -1)
+			os.WriteFile(path, r.ReplaceAllLiteral(b, []byte(replace)), 0600)
+		}
+	}
+	return nil
 }

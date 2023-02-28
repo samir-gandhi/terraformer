@@ -14,6 +14,7 @@
 package terraformoutput
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -133,7 +134,6 @@ func printFile(v []terraformutils.Resource, fileName, path, output string, sort 
 			}
 		}
 	}
-
 	tfFile, err := terraformutils.HclPrintResource(v, map[string]interface{}{}, output, sort)
 	if err != nil {
 		return err
@@ -151,6 +151,24 @@ func PrintFile(path string, data []byte) {
 	if err != nil {
 		log.Fatal(err)
 		return
+	}
+}
+
+func CheckAndPrintFile(path string, data []byte) {
+	if _, err := os.Stat(path); err == nil {
+		file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, os.ModePerm)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+		_, err = file.Write(data)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else if errors.Is(err, os.ErrNotExist) {
+		PrintFile(path, data)
+	} else {
+		log.Fatal(err)
 	}
 }
 

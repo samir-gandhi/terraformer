@@ -42,5 +42,6 @@ func (s *PingOneDavinciService) generateClient() *davinci.APIClient {
 		apiClient.CompanyID = s.Args["target_environment_id"].(string)
 	}
 	fmt.Printf(`apiClient.CompanyID is: %q`, apiClient.CompanyID)
+
 	return apiClient
 }
