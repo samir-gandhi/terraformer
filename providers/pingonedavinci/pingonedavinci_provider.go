@@ -46,7 +46,6 @@ func (p PingOneDavinciProvider) GetResourceConnections() map[string]map[string][
 
 func (p PingOneDavinciProvider) GetResourceVariables() map[string][]terraformutils.VariableSet {
 	return map[string][]terraformutils.VariableSet{
-		// "davinci_connection": {{Path: "property.value", Key: "self_link"}},
 		"davinci_connection": {{Path: "property.value", Key: "property.name"}},
 		"davinci_variable":   {{Path: "value", Key: "self_link"}},
 	}

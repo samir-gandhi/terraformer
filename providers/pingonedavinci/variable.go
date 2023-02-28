@@ -37,7 +37,6 @@ func (g VariableGenerator) createResources(variables map[string]davinci.Variable
 	for id, variable := range variables {
 		s := strings.Split(id, "##SK##")
 		name := s[0]
-		log.Println("name: " + name)
 		resourceId := id
 		resourceName := name
 		if _, ok := names[name]; !ok {
