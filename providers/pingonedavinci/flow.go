@@ -70,16 +70,12 @@ func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Re
 			"davinci",
 			map[string]string{
 				"environment_id": flow.CompanyID,
+				"deploy":         "true",
 			},
 			FlowAllowEmptyValues,
 			map[string]interface{}{
-				// "flow_json": "${file(" + "\"data/" + filename + "\")}",
-				// "flow_json": fmt.Sprintf("${file(%q)}", "data/"+filename),
-				// "flow_json": fmt.Sprintf(`${file("./data/%s")}`, filename),
-				// "flow_json": fmt.Sprint("${file(" + "\"./data/" + filename + "\")}"),
 				"flow_json": fmt.Sprintf("${file(\"data/%s\")}", filename),
 			},
-			// addlAttrs,
 		)
 		resource.DataFiles = map[string][]byte{
 			filename: configJson,
@@ -167,24 +163,13 @@ func (g *FlowGenerator) InitResources() error {
 func (g *FlowGenerator) PostConvertHook() error {
 	//function to variablize resource environment_id
 	if g.Args["abstract"].(string) == "true" {
+		if err := g.updateEnvId("davinci_flow"); err != nil {
+			return err
+		}
 		targetEnvironmentId := g.Args["environment_id"].(string)
 		if g.Args["target_environment_id"] != nil {
 			targetEnvironmentId = g.Args["target_environment_id"].(string)
 		}
-		for k, r := range g.Resources {
-			thisResource := g.Resources[k]
-			if r.InstanceInfo.Type == "davinci_flow" {
-				if r.Item["environment_id"] != targetEnvironmentId {
-					return fmt.Errorf("environment_id %q is not equal to target_environment_id %q", r.Item["environment_id"], targetEnvironmentId)
-				}
-				keyValue := "pingone_target_environment_id"
-				linkValue := fmt.Sprintf("${var.%s}", keyValue)
-				r.Item["environment_id"] = linkValue
-				thisResource = r
-			}
-			g.Resources[k] = thisResource
-		}
-
 		if g.Resources[0].Variables == nil {
 			g.Resources[0].Variables = map[string]interface{}{}
 		}

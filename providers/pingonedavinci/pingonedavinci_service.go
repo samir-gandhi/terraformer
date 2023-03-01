@@ -45,3 +45,24 @@ func (s *PingOneDavinciService) generateClient() *davinci.APIClient {
 
 	return apiClient
 }
+
+func (s *PingOneDavinciService) updateEnvId(resourceType string) error {
+	targetEnvironmentId := s.Args["environment_id"].(string)
+	if s.Args["target_environment_id"] != nil {
+		targetEnvironmentId = s.Args["target_environment_id"].(string)
+	}
+	for k, r := range s.Resources {
+		thisResource := s.Resources[k]
+		if r.InstanceInfo.Type == resourceType {
+			if r.Item["environment_id"] != targetEnvironmentId {
+				return fmt.Errorf("environment_id %q is not equal to target_environment_id %q", r.Item["environment_id"], targetEnvironmentId)
+			}
+			keyValue := "pingone_target_environment_id"
+			linkValue := fmt.Sprintf("${var.%s}", keyValue)
+			r.Item["environment_id"] = linkValue
+			thisResource = r
+		}
+		s.Resources[k] = thisResource
+	}
+	return nil
+}

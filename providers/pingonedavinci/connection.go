@@ -76,3 +76,13 @@ func (g *ConnectionGenerator) InitResources() error {
 
 	return nil
 }
+
+func (g *ConnectionGenerator) PostConvertHook() error {
+	//function to variablize resource environment_id
+	if g.Args["abstract"].(string) == "true" {
+		if err := g.updateEnvId("davinci_connection"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
