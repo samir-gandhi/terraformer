@@ -78,3 +78,13 @@ func (g *ApplicationGenerator) InitResources() error {
 	g.Resources = g.createResources(list)
 	return nil
 }
+
+func (g *ApplicationGenerator) PostConvertHook() error {
+	//function to variablize resource environment_id
+	if g.Args["abstract"].(string) == "true" {
+		if err := g.updateEnvId("davinci_application"); err != nil {
+			return err
+		}
+	}
+	return nil
+}

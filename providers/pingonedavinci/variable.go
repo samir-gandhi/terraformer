@@ -82,3 +82,13 @@ func (g *VariableGenerator) InitResources() error {
 	g.Resources = g.createResources(list)
 	return nil
 }
+
+func (g *VariableGenerator) PostConvertHook() error {
+	//function to variablize resource environment_id
+	if g.Args["abstract"].(string) == "true" {
+		if err := g.updateEnvId("davinci_variable"); err != nil {
+			return err
+		}
+	}
+	return nil
+}

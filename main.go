@@ -15,11 +15,12 @@
 package main
 
 import (
-	"path/filepath"
+	"bufio"
+	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -55,7 +56,7 @@ func walkFunc(path string, fi os.FileInfo, err error) error {
 	}
 
 	if !!fi.IsDir() {
-		return nil //
+		return nil
 	}
 	matched, err := filepath.Match("*.tf", fi.Name())
 	if err != nil {
@@ -63,17 +64,33 @@ func walkFunc(path string, fi os.FileInfo, err error) error {
 	}
 
 	if matched {
-		b, err := ioutil.ReadFile(path)
+		file, err := os.OpenFile(path, os.O_RDWR, 0644)
 		if err != nil {
-			return err
+			fmt.Printf("Failed to open file: %s\n", err)
+			os.Exit(1)
 		}
 
-		r := regexp.MustCompile(`"\${file\(\\\"data\/.*json\\\"\)}"`)
-		items := r.FindAllStringSubmatch(string(b), -1)
-		for _, item := range items {
-			replace := strings.Replace(item[0], "\\", "", -1)
-			os.WriteFile(path, r.ReplaceAllLiteral(b, []byte(replace)), 0600)
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		if err := scanner.Err(); err != nil {
+			panic(err)
 		}
+		updatedContent := ""
+
+		re := regexp.MustCompile(`"\${file\(\\\"data\/.*json\\\"\)}"`)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if re.MatchString(line) {
+				// Replace the backslashes with empty string.
+				line = strings.ReplaceAll(line, "\\", "")
+			}
+			updatedContent += line + "\n"
+		}
+
+		file.Seek(0, 0)
+		file.Truncate(0)
+		file.WriteString(updatedContent)
 	}
 	return nil
 }
