@@ -74,7 +74,7 @@ func (g FlowGenerator) createResources(flows []davinci.Flow) []terraformutils.Re
 			},
 			FlowAllowEmptyValues,
 			map[string]interface{}{
-				"flow_json": fmt.Sprintf("${file(\"data/%s\")}", filename),
+				"flow_json": fmt.Sprintf("${file(\"${path.module}/data/%s\")}", filename),
 			},
 		)
 		resource.DataFiles = map[string][]byte{
