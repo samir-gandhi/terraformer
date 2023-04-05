@@ -78,7 +78,7 @@ func walkFunc(path string, fi os.FileInfo, err error) error {
 		}
 		updatedContent := ""
 
-		re := regexp.MustCompile(`"\${file\(\\\"data\/.*json\\\"\)}"`)
+		re := regexp.MustCompile(`"\${file\(\\\"\${path.module}\/data\/.*json\\\"\)}"`)
 		for scanner.Scan() {
 			line := scanner.Text()
 			if re.MatchString(line) {
