@@ -403,7 +403,7 @@ func printAbstractVariables(filePath string, options ImportOptions, importedReso
 		}
 		// print files
 		if len(variables["variable"]) > 0 {
-			variablesFile, err := terraformutils.Print(variables, map[string]struct{}{}, options.Output, !options.NoSort)
+			variablesFile, err := terraformutils.Print(variables, map[string]struct{}{}, options.Output, options.NoSort)
 			if err != nil {
 				return err
 			}
