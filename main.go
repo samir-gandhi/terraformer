@@ -44,9 +44,31 @@ func main() {
 		log.Println(err)
 		os.Exit(1)
 	}
-	if err := filepath.Walk("generated", walkFunc); err != nil {
-		panic(err)
+	// //used only for post processing
+	if err := postProcessOutputFiles(); err != nil {
+		log.Println(err)
+		os.Exit(1)
 	}
+}
+
+func postProcessOutputFiles() error {
+	path := cmd.DefaultPathOutput
+	if len(os.Args) > 1 {
+		for i, v := range os.Args {
+			switch {
+			case v == "--path-output", v == "-o", v == "--path-pattern", v == "-p":
+				path = os.Args[i+1]
+			case strings.HasPrefix(v, "--path-output="), strings.HasPrefix(v, "-o="):
+				path = strings.Split(v, "=")[1]
+			default:
+				continue
+			}
+		}
+		if err := filepath.Walk(path, walkFunc); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // DO NOT COMMIT THIS FUNCTION
