@@ -31,24 +31,33 @@ func newCmdPingOneDavinciImporter(options ImportOptions) *cobra.Command {
 		Long:  "Import current state to Terraform configuration from PingOneDavinci",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			username := os.Getenv("PINGONE_USERNAME")
-			if len(username) == 0 {
-				return errors.New("PingOne username for Davinci must be set through `PINGONE_USERNAME` env var")
-			}
 			password := os.Getenv("PINGONE_PASSWORD")
-			if len(password) == 0 {
-				return errors.New("PingOne password for Davinci must be set through `PINGONE_PASSWORD` env var")
-			}
 			region := os.Getenv("PINGONE_REGION")
-			if len(region) == 0 {
-				return errors.New("PingOne region for Davinci must be set through `PINGONE_REGION` env var")
-			}
 			environmentId := os.Getenv("PINGONE_ENVIRONMENT_ID")
-			if len(environmentId) == 0 {
-				return errors.New("PingOne environemnt id for Davinci must be set through `PINGONE_ENVIRONMENT_ID` env var")
-			}
 			targetEnvironmentId := options.Profile
 
 			abstract := options.Abstract
+
+			providerConfigVars := map[string]*string{
+				"PINGONE_USERNAME":       &username,
+				"PINGONE_PASSWORD":       &password,
+				"PINGONE_REGION":         &region,
+				"PINGONE_ENVIRONMENT_ID": &environmentId,
+			}
+			pingonedavinci_terraforming.ReadPingOneConfig(options.Zone, providerConfigVars)
+
+			if len(username) == 0 {
+				return errors.New("PingOne username for Davinci must be set through `PINGONE_USERNAME` env var")
+			}
+			if len(password) == 0 {
+				return errors.New("PingOne password for Davinci must be set through `PINGONE_PASSWORD` env var")
+			}
+			if len(region) == 0 {
+				return errors.New("PingOne region for Davinci must be set through `PINGONE_REGION` env var")
+			}
+			if len(environmentId) == 0 {
+				return errors.New("PingOne environemnt id for Davinci must be set through `PINGONE_ENVIRONMENT_ID` env var")
+			}
 
 			provider := newPingOneDavinciProvider()
 			err := Import(provider, options, []string{username, password, region, environmentId, targetEnvironmentId, strconv.FormatBool(abstract)})
@@ -60,6 +69,7 @@ func newCmdPingOneDavinciImporter(options ImportOptions) *cobra.Command {
 	}
 	cmd.AddCommand(listCmd(newPingOneDavinciProvider()))
 	baseProviderFlags(cmd.PersistentFlags(), &options, "", "")
+	cmd.Flags().StringVarP(&options.Zone, "pingone-config-file", "F", "", "/full/path/to/pingone-config.env")
 	cmd.Flags().StringVarP(&options.Profile, "target-environment-id", "t", "", "dv0-abc-1234-xyz-5678")
 	return cmd
 }

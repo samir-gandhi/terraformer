@@ -15,8 +15,11 @@
 package pingonedavinci
 
 import (
+	"bufio"
 	"errors"
+	"log"
 	"os"
+	"strings"
 
 	"github.com/GoogleCloudPlatform/terraformer/terraformutils"
 	"github.com/zclconf/go-cty/cty"
@@ -51,32 +54,59 @@ func (p PingOneDavinciProvider) GetResourceVariables() map[string][]terraformuti
 	}
 }
 
+// reads a key=value config file and overwrites the values in the varsMap
+func ReadPingOneConfig(filename string, varsMap map[string]*string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		kv := strings.Split(line, "=")
+		if len(kv) != 2 {
+			log.Printf("invalid line in config file: %s", line)
+		}
+		k := strings.TrimSpace(kv[0])
+		v := strings.TrimSpace(kv[1])
+		v = strings.Trim(v, "'")  // trim quotes
+		v = strings.Trim(v, "\"") // trim quotes
+		for key, value := range varsMap {
+			if key == k {
+				*value = v
+			}
+		}
+	}
+	return nil
+}
+
 func (p *PingOneDavinciProvider) Init(args []string) error {
-	uName := os.Getenv("PINGONE_USERNAME")
+	uName := args[0]
 	if uName == "" {
 		return errors.New("set PINGONE_USERNAME env var")
 	}
 	p.username = uName
 
-	pWord := os.Getenv("PINGONE_PASSWORD")
+	pWord := args[1]
 	if pWord == "" {
 		return errors.New("set PINGONE_PASSWORD env var")
 	}
 	p.password = pWord
 
-	region := os.Getenv("PINGONE_REGION")
+	region := args[2]
 	if region == "" {
 		return errors.New("set PINGONE_REGION env var")
 	}
 	p.region = region
 
-	environmentId := os.Getenv("PINGONE_ENVIRONMENT_ID")
+	environmentId := args[3]
 	if region == "" {
 		return errors.New("set PINGONE_ENVIRONMENT_ID env var")
 	}
 	p.environmentId = environmentId
 
-	if targetEnvId := os.Getenv("PINGONE_TARGET_ENVIRONMENT_ID"); targetEnvId != "" {
+	if targetEnvId := args[4]; targetEnvId != "" {
 		p.targetEnvironmentId = targetEnvId
 	}
 
