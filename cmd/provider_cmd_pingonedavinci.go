@@ -34,23 +34,22 @@ func newCmdPingOneDavinciImporter(options ImportOptions) *cobra.Command {
 			password := os.Getenv("PINGONE_PASSWORD")
 			region := os.Getenv("PINGONE_REGION")
 			environmentId := os.Getenv("PINGONE_ENVIRONMENT_ID")
+			accessToken := os.Getenv("PINGONE_DAVINCI_ACCESS_TOKEN")
 			targetEnvironmentId := options.Profile
 
 			abstract := options.Abstract
 
 			providerConfigVars := map[string]*string{
-				"PINGONE_USERNAME":       &username,
-				"PINGONE_PASSWORD":       &password,
-				"PINGONE_REGION":         &region,
-				"PINGONE_ENVIRONMENT_ID": &environmentId,
+				"PINGONE_USERNAME":             &username,
+				"PINGONE_PASSWORD":             &password,
+				"PINGONE_DAVINCI_ACCESS_TOKEN": &accessToken,
+				"PINGONE_REGION":               &region,
+				"PINGONE_ENVIRONMENT_ID":       &environmentId,
 			}
 			pingonedavinci_terraforming.ReadPingOneConfig(options.Zone, providerConfigVars)
 
-			if len(username) == 0 {
-				return errors.New("PingOne username for Davinci must be set through `PINGONE_USERNAME` env var")
-			}
-			if len(password) == 0 {
-				return errors.New("PingOne password for Davinci must be set through `PINGONE_PASSWORD` env var")
+			if (len(username) == 0 || len(password) == 0) && len(accessToken) == 0 {
+				return errors.New("PingOne Davinci credentials must be set through `PINGONE_USERNAME` and `PINGONE_PASSWORD` env vars or `PINGONE_DAVINCI_ACCESS_TOKEN` env var")
 			}
 			if len(region) == 0 {
 				return errors.New("PingOne region for Davinci must be set through `PINGONE_REGION` env var")
@@ -60,7 +59,7 @@ func newCmdPingOneDavinciImporter(options ImportOptions) *cobra.Command {
 			}
 
 			provider := newPingOneDavinciProvider()
-			err := Import(provider, options, []string{username, password, region, environmentId, targetEnvironmentId, strconv.FormatBool(abstract)})
+			err := Import(provider, options, []string{username, password, accessToken, region, environmentId, targetEnvironmentId, strconv.FormatBool(abstract)})
 			if err != nil {
 				return err
 			}

@@ -30,10 +30,11 @@ func (s *PingOneDavinciService) generateClient() *davinci.APIClient {
 	cInput := davinci.ClientInput{
 		Username:        s.Args["username"].(string),
 		Password:        s.Args["password"].(string),
+		AccessToken:     s.Args["access_token"].(string),
 		PingOneRegion:   s.Args["region"].(string),
 		PingOneSSOEnvId: s.Args["environment_id"].(string),
 	}
-
+	fmt.Printf("args: %v\n", s.Args)
 	apiClient, err := davinci.NewClient(&cInput)
 	if err != nil {
 		log.Fatalf(err.Error())

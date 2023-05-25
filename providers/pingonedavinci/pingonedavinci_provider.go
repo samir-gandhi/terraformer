@@ -29,6 +29,7 @@ type PingOneDavinciProvider struct { //nolint
 	terraformutils.Provider
 	username            string
 	password            string
+	accessToken         string
 	region              string
 	environmentId       string
 	targetEnvironmentId string
@@ -83,41 +84,41 @@ func ReadPingOneConfig(filename string, varsMap map[string]*string) error {
 
 func (p *PingOneDavinciProvider) Init(args []string) error {
 	uName := args[0]
-	if uName == "" {
-		return errors.New("set PINGONE_USERNAME env var")
-	}
 	p.username = uName
 
 	pWord := args[1]
-	if pWord == "" {
-		return errors.New("set PINGONE_PASSWORD env var")
-	}
 	p.password = pWord
 
-	region := args[2]
+	accessToken := args[2]
+	p.accessToken = accessToken
+	if (p.username == "" || p.password == "") && p.accessToken == "" {
+		return errors.New("set PINGONE_USERNAME and PINGONE_PASSWORD or PINGONE_DAVINCI_ACCESS_TOKEN env vars")
+	}
+
+	region := args[3]
 	if region == "" {
 		return errors.New("set PINGONE_REGION env var")
 	}
 	p.region = region
 
-	environmentId := args[3]
+	environmentId := args[4]
 	if region == "" {
 		return errors.New("set PINGONE_ENVIRONMENT_ID env var")
 	}
 	p.environmentId = environmentId
 
-	if targetEnvId := args[4]; targetEnvId != "" {
+	if targetEnvId := args[5]; targetEnvId != "" {
 		p.targetEnvironmentId = targetEnvId
 	}
 
 	// override os env vars with args if needed.
-	if len(args) > 4 && args[4] != "" {
-		p.targetEnvironmentId = args[4]
+	if len(args) > 5 && args[5] != "" {
+		p.targetEnvironmentId = args[5]
 	}
 
 	//set abstract
-	if len(args) > 5 {
-		p.abstract = args[5]
+	if len(args) > 6 {
+		p.abstract = args[6]
 	}
 
 	return nil
@@ -135,6 +136,7 @@ func (p *PingOneDavinciProvider) GetConfig() cty.Value {
 	return cty.ObjectVal(map[string]cty.Value{
 		"username":       cty.StringVal(p.username),
 		"password":       cty.StringVal(p.password),
+		"access_token":   cty.StringVal(p.accessToken),
 		"region":         cty.StringVal(p.region),
 		"environment_id": cty.StringVal(p.environmentId),
 	})
@@ -152,6 +154,7 @@ func (p *PingOneDavinciProvider) InitService(serviceName string, verbose bool) e
 	p.Service.SetArgs(map[string]interface{}{
 		"username":              p.username,
 		"password":              p.password,
+		"access_token":          p.accessToken,
 		"region":                p.region,
 		"environment_id":        p.environmentId,
 		"target_environment_id": p.targetEnvironmentId,
