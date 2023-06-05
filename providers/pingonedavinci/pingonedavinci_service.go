@@ -34,7 +34,6 @@ func (s *PingOneDavinciService) generateClient() *davinci.APIClient {
 		PingOneRegion:   s.Args["region"].(string),
 		PingOneSSOEnvId: s.Args["environment_id"].(string),
 	}
-	fmt.Printf("args: %v\n", s.Args)
 	apiClient, err := davinci.NewClient(&cInput)
 	if err != nil {
 		log.Fatalf(err.Error())
@@ -42,7 +41,6 @@ func (s *PingOneDavinciService) generateClient() *davinci.APIClient {
 	if s.Args["target_environment_id"] != nil {
 		apiClient.CompanyID = s.Args["target_environment_id"].(string)
 	}
-	fmt.Printf(`apiClient.CompanyID is: %q`, apiClient.CompanyID)
 
 	return apiClient
 }
