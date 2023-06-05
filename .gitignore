@@ -12,3 +12,5 @@ versions.tf
 init.tf
 vendor/
 bin
+
+dist/
